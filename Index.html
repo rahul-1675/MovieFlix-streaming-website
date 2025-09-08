@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Stream and download the latest movies and TV shows on MovieFlix">
+    <title>MovieFlix - Stream & Download</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-color: #e50914;
+            --secondary-color: #b81d24;
+            --dark-bg: #141414;
+            --light-text: #ffffff;
+            --gray-text: #a3a3a3;
+            --card-bg: #222;
+            --transition-speed: 0.3s;
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Layout Components */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .section {
+            padding: 3rem 0;
+        }
+
+        .section-title {
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Navigation */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 3rem;
+            background-color: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .logo span {
+            color: var(--light-text);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--light-text);
+            font-weight: 500;
+            transition: color var(--transition-speed);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            width: 200px;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .search-box button {
+            padding: 0.5rem;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 0 5px 5px 0;
+            color: white;
+        }
+
+        .profile-link {
+            margin-left: 2rem;
+        }
+
+        .profile-link a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color var(--transition-speed);
+        }
+
+        .profile-link a:hover {
+            color: var(--primary-color);
+        }
+
+        .active-page {
+            color: var(--primary-color) !important;
+            font-weight: bold;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://image.tmdb.org/t/p/original/9yBVqNruk6Ykrwc32qrK2TIE5xw.jpg') center/cover;
+            display: flex;
+            align-items: center;
+            padding: 0 3rem;
+        }
+
+        .hero-content {
+            max-width: 600px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero p {
+            margin-bottom: 2rem;
+            color: var(--gray-text);
+            font-size: 1.1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .hero-buttons button {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .hero-buttons button:hover {
+            transform: scale(1.05);
+        }
+
+        .play-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .download-btn {
+            background-color: rgba(109, 109, 110, 0.7);
+            color: white;
+        }
+
+        /* Cards */
+        .card {
+            position: relative;
+            transition: transform var(--transition-speed);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: var(--card-bg);
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .card:hover img {
+            transform: scale(1.1);
+        }
+
+        .card-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+        }
+
+        .card-info h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .card-actions button {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-actions button:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        /* Profile Page */
+        .profile-page {
+            display: none;
+        }
+
+        .profile-header {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .profile-banner {
+            height: 300px;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://image.tmdb.org/t/p/original/9yBVqNruk6Ykrwc32qrK2TIE5xw.jpg') center/cover;
+            border-radius: 8px;
+        }
+
+        .profile-info {
+            display: flex;
+            gap: 2rem;
+            margin-top: -50px;
+            align-items: flex-end;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid var(--dark-bg);
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-details h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray-text);
+        }
+
+        /* Form Styles */
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            padding: 0.8rem 2rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #000;
+            padding: 2rem 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 150px;
+        }
+
+        .footer-links h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .footer-links a {
+            color: var(--gray-text);
+            transition: color var(--transition-speed);
+        }
+
+        .footer-links a:hover {
+            color: var(--light-text);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: var(--light-text);
+            font-size: 1.5rem;
+            transition: color var(--transition-speed);
+        }
+
+        .social-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #333;
+            color: var(--gray-text);
+        }
+
+        /* Loading State */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* About Us Page Styles */
+        .about-page {
+            display: none;
+            padding: 3rem;
+        }
+
+        .about-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .about-content p {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .about-content ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .about-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .team-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .team-card > div:first-child {
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .team-card > div:last-child {
+            padding: 1.5rem;
+        }
+
+        .team-card h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .team-card p:first-of-type {
+            color: var(--gray-text);
+            margin-bottom: 1rem;
+        }
+
+        .team-card p:last-of-type {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .team-social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .team-social-links a {
+            color: var(--light-text);
+            transition: color 0.3s;
+        }
+
+        .team-social-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Privacy Policy Page */
+        .privacy-page {
+            display: none;
+            padding: 3rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .privacy-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+        }
+
+        .privacy-content h2 {
+            margin: 1.5rem 0 1rem;
+            color: var(--primary-color);
+        }
+
+        .privacy-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .privacy-content ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                margin: 0;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .search-box {
+                margin-bottom: 0;
+                width: 100%;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+
+            .hero-content {
+                text-align: center;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .profile-info {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Lazy loading for images */
+        img[data-src] {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        img.lazy-loaded {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" aria-label="Main navigation">
+        <div class="logo" onclick="showPage('home')" role="button" tabindex="0">Movie<span>Flix</span></div>
+        <div class="nav-links">
+            <a class="active-page" onclick="showPage('home')" aria-current="page">Home</a>
+            <a onclick="showPage('movies')">Movies</a>
+            <a onclick="showPage('tv')">TV Shows</a>
+            <a onclick="showPage('downloads')">Downloads</a>
+            <a onclick="showPage('contact')">Contact Us</a>
+            <a onclick="showPage('privacy')">Privacy Policy</a>
+            <a onclick="showPage('about')">About Us</a>
+        </div>
+        <div class="search-box">
+            <input type="text" placeholder="Search movies..." aria-label="Search movies">
+            <button aria-label="Search"><i class="fas fa-search"></i></button>
+        </div>
+        <div class="profile-link">
+            <a onclick="showPage('profile')" aria-label="User profile">
+                <i class="fas fa-user"></i> Profile
+            </a>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <!-- Home Page -->
+        <div id="home-page" class="page">
+            <section class="hero" aria-label="Featured movie">
+                <div class="hero-content">
+                    <h1>Avengers: Endgame</h1>
+                    <p>After the devastating events of Infinity War, the Avengers assemble once more to reverse Thanos' actions.</p>
+                    <div class="hero-buttons">
+                        <button class="play-btn"><i class="fas fa-play"></i> Watch Now</button>
+                        <button class="download-btn"><i class="fas fa-download"></i> Download</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="container">
+                    <h2 class="section-title"><i class="fas fa-film"></i> Trending Movies</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/1LRLLWGvs5sZdTzuMqLEahb88Pc.jpg" alt="Dune movie poster">
+                            <div class="card-info">
+                                <h3>Ragnarok</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Dune"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Dune"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Dune to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg" alt="The Batman movie poster">
+                            <div class="card-info">
+                                <h3>WW 84</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play The Batman"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download The Batman"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add The Batman to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6DrHO1jr3qVrViUO6s6kFiAGM7.jpg" alt="Spider-Man: No Way Home movie poster">
+                            <div class="card-info">
+                                <h3>Sonic-2</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Spider-Man: No Way Home"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Spider-Man: No Way Home"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Spider-Man: No Way Home to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg" alt="No Time to Die movie poster">
+                            <div class="card-info">
+                                <h3>Spider-Man: No Way Home</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play No Time to Die"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download No Time to Die"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add No Time to Die to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6MKr3KgOLmzOP6MSuZERO41Lpkt.jpg" alt="Shang-Chi movie poster">
+                            <div class="card-info">
+                                <h3>Shang-Chi</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Shang-Chi"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Shang-Chi"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Shang-Chi to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="container">
+                    <h2 class="section-title"><i class="fas fa-tv"></i> Popular TV Shows</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/9yxep7oJdkj3Pla9TD9gKflRApY.jpg" alt="Stranger Things TV show poster">
+                            <div class="card-info">
+                                <h3>Jupiter's Legacy</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Stranger Things"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Stranger Things"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Stranger Things to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/7D430eqZj8y3oVkLFfsWXGRcpEG.jpg" alt="The Mandalorian TV show poster">
+                            <div class="card-info">
+                                <h3>2067</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play The Mandalorian"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download The Mandalorian"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add The Mandalorian to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6kbAMLteGO8yyewYau6bJ683sw7.jpg" alt="The Witcher TV show poster">
+                            <div class="card-info">
+                                <h3>The Falcon</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play The Witcher"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download The Witcher"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add The Witcher to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6UH52Fmau8RPsMAbQbjwN3wJSCj.jpg" alt="Loki TV show poster">
+                            <div class="card-info">
+                                <h3>Loki</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Loki"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Loki"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Loki to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://media.themoviedb.org/t/p/w600_and_h900_bestv2/ljHw5eIMnki3HekwkKwCCHsRSbH.jpg" alt="WandaVision TV show poster">
+                            <div class="card-info">
+                                <h3>RRR</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play WandaVision"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download WandaVision"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add WandaVision to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Movies Page -->
+        <div id="movies-page" class="movies-page">
+            <section class="section">
+                <div class="container">
+                    <h2 class="section-title"><i class="fas fa-film"></i> All Movies</h2>
+                    <div class="grid" id="movies-grid">
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/1LRLLWGvs5sZdTzuMqLEahb88Pc.jpg" alt="Dune movie poster">
+                            <div class="card-info">
+                                <h3>Ragnarok</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Dune"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Dune"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Dune to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg" alt="The Batman movie poster">
+                            <div class="card-info">
+                                <h3>WW84</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play The Batman"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download The Batman"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add The Batman to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6DrHO1jr3qVrViUO6s6kFiAGM7.jpg" alt="Spider-Man: No Way Home movie poster">
+                            <div class="card-info">
+                                <h3>Sonic-2</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Spider-Man: No Way Home"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Spider-Man: No Way Home"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Spider-Man: No Way Home to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg" alt="No Time to Die movie poster">
+                            <div class="card-info">
+                                <h3>Spider-Man: No Way Home</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play No Time to Die"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download No Time to Die"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add No Time to Die to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6MKr3KgOLmzOP6MSuZERO41Lpkt.jpg" alt="Shang-Chi movie poster">
+                            <div class="card-info">
+                                <h3>Black Widow</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Shang-Chi"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Shang-Chi"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Shang-Chi to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg" alt="Avengers: Infinity War movie poster">
+                            <div class="card-info">
+                                <h3>Avengers: Infinity War</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Avengers: Infinity War"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Avengers: Infinity War"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Avengers: Infinity War to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg" alt="Black Widow movie poster">
+                            <div class="card-info">
+                                <h3>Batman</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Black Widow"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Black Widow"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Black Widow to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/1BIoJGKbXjdFDAqUEiA2VHqkK1Z.jpg" alt="Jurassic World Dominion movie poster">
+                            <div class="card-info">
+                                <h3>Shang-Chi</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Jurassic World Dominion"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Jurassic World Dominion"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Jurassic World Dominion to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- TV Shows Page -->
+        <div id="tv-page" class="tv-page">
+            <section class="section">
+                <div class="container">
+                    <h2 class="section-title"><i class="fas fa-tv"></i> All TV Shows</h2>
+                    <div class="grid" id="tv-grid">
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/9yxep7oJdkj3Pla9TD9gKflRApY.jpg" alt="Stranger Things TV show poster">
+                            <div class="card-info">
+                                <h3>Jupiter's Legacy</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Stranger Things"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Stranger Things"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Stranger Things to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/7D430eqZj8y3oVkLFfsWXGRcpEG.jpg" alt="The Mandalorian TV show poster">
+                            <div class="card-info">
+                                <h3>2067</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play The Mandalorian"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download The Mandalorian"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add The Mandalorian to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6kbAMLteGO8yyewYau6bJ683sw7.jpg" alt="The Witcher TV show poster">
+                            <div class="card-info">
+                                <h3>The Falcon</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play The Witcher"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download The Witcher"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add The Witcher to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6UH52Fmau8RPsMAbQbjwN3wJSCj.jpg" alt="Loki TV show poster">
+                            <div class="card-info">
+                                <h3>Loki</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Loki"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Loki"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Loki to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://media.themoviedb.org/t/p/w600_and_h900_bestv2/ljHw5eIMnki3HekwkKwCCHsRSbH.jpg" alt="WandaVision TV show poster">
+                            <div class="card-info">
+                                <h3>RRR</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play WandaVision"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download WandaVision"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add WandaVision to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://media.themoviedb.org/t/p/w600_and_h900_bestv2/xQ22LOWSkClP3maYhR9nZH0dnWM.jpg" alt="The Falcon and the Winter Soldier TV show poster">
+                            <div class="card-info">
+                                <h3>BAHUBALI-2 The conclusion</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play The Falcon and the Winter Soldier"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download The Falcon and the Winter Soldier"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add The Falcon and the Winter Soldier to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/7vjaCdMw15FEbXyLQTVa04URsPm.jpg" alt="Moon Knight TV show poster">
+                            <div class="card-info">
+                                <h3>THE Witcher</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Moon Knight"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Moon Knight"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Moon Knight to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6tfT03sGp9k4c0J3dypjrI8TSAI.jpg" alt="Hawkeye TV show poster">
+                            <div class="card-info">
+                                <h3>Good Doctor</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Hawkeye"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Download Hawkeye"><i class="fas fa-download"></i></button>
+                                    <button aria-label="Add Hawkeye to favorites"><i class="far fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Downloads Page -->
+        <div id="downloads-page" class="downloads-page">
+            <section class="section">
+                <div class="container">
+                    <h2 class="section-title"><i class="fas fa-download"></i> Your Downloads</h2>
+                    <div class="grid" id="downloads-grid">
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/1LRLLWGvs5sZdTzuMqLEahb88Pc.jpg" alt="Dune movie poster">
+                            <div class="card-info">
+                                <h3>Ragnarok</h3>
+                                <p>Downloaded: 1080p (2.4GB)</p>
+                                <div class="card-actions">
+                                    <button aria-label="Play Dune"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Delete Dune"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg" alt="The Batman movie poster">
+                            <div class="card-info">
+                                <h3>WW84</h3>
+                                <p>Downloaded: 4K HDR (8.7GB)</p>
+                                <div class="card-actions">
+                                    <button aria-label="Play The Batman"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Delete The Batman"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6DrHO1jr3qVrViUO6s6kFiAGM7.jpg" alt="Spider-Man: No Way Home movie poster">
+                            <div class="card-info">
+                                <h3>Sonic-2</h3>
+                                <p>Downloaded: 720p (1.8GB)</p>
+                                <div class="card-actions">
+                                    <button aria-label="Play Spider-Man: No Way Home"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Delete Spider-Man: No Way Home"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profile-page" class="profile-page">
+            <div class="profile-header">
+                <div class="profile-banner"></div>
+                <div class="profile-info">
+                    <img src="./mohan.jpg" alt="Profile Picture" class="profile-avatar">
+                    <div class="profile-details">
+                        <h1>Y.M.S</h1>
+                        <p>Premium Member</p>
+                        <div class="profile-stats">
+                            <div class="stat">
+                                <span class="stat-number">247</span>
+                                <span class="stat-label">Movies Watched</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">53</span>
+                                <span class="stat-label">Downloads</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">86</span>
+                                <span class="stat-label">Favorites</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="section">
+                <div class="container">
+                    <h2 class="section-title"><i class="fas fa-history"></i> Recently Watched</h2>
+                    <div class="grid" id="recently-watched-grid">
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/1LRLLWGvs5sZdTzuMqLEahb88Pc.jpg" alt="Dune movie poster">
+                            <div class="card-info">
+                                <h3>Ragnarok</h3>
+                                <p>Last watched: 2 days ago</p>
+                                <div class="card-actions">
+                                    <button aria-label="Continue Dune"><i class="fas fa-play"></i> Continue</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg" alt="The Batman movie poster">
+                            <div class="card-info">
+                                <h3>WW84</h3>
+                                <p>Last watched: 1 week ago</p>
+                                <div class="card-actions">
+                                    <button aria-label="Continue The Batman"><i class="fas fa-play"></i> Continue</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="container">
+                    <h2 class="section-title"><i class="fas fa-heart"></i> Your Favorites</h2>
+                    <div class="grid" id="favorites-grid">
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/6DrHO1jr3qVrViUO6s6kFiAGM7.jpg" alt="Spider-Man: No Way Home movie poster">
+                            <div class="card-info">
+                                <h3>Sonic-2</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Spider-Man: No Way Home"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Remove Spider-Man: No Way Home from favorites"><i class="fas fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500/9yxep7oJdkj3Pla9TD9gKflRApY.jpg" alt="Stranger Things TV show poster">
+                            <div class="card-info">
+                                <h3>Jupiter's Legacy</h3>
+                                <div class="card-actions">
+                                    <button aria-label="Play Stranger Things"><i class="fas fa-play"></i></button>
+                                    <button aria-label="Remove Stranger Things from favorites"><i class="fas fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Contact Us Page -->
+        <div id="contact-page" class="contact-page">
+            <section class="section">
+                <div class="container">
+                    <h2 class="section-title"><i class="fas fa-envelope"></i> Contact Us</h2>
+                    <div class="contact-form">
+                        <form id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Your Name</label>
+                                <input type="text" id="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="subject">Subject</label>
+                                <select id="subject">
+                                    <option value="general">General Inquiry</option>
+                                    <option value="technical">Technical Support</option>
+                                    <option value="billing">Billing Question</option>
+                                    <option value="suggestion">Suggestion</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Message</label>
+                                <textarea id="message" required></textarea>
+                            </div>
+                            <button type="submit" class="submit-btn">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Privacy Policy Page -->
+        <div id="privacy-page" class="privacy-page">
+            <section class="section">
+                <div class="container">
+                    <h2 class="section-title"><i class="fas fa-shield-alt"></i> Privacy Policy</h2>
+                    <div class="privacy-content">
+                        <h2>1. Information We Collect</h2>
+                        <p>We collect information to provide better services to all our users. The types of information we collect include:</p>
+                        <ul>
+                            <li>Information you provide (account details, payment information)</li>
+                            <li>Information about your use of our services (what you watch, when you watch)</li>
+                            <li>Device information (IP address, device type, operating system)</li>
+                        </ul>
+
+                        <h2>2. How We Use Information</h2>
+                        <p>We use the information we collect to:</p>
+                        <ul>
+                            <li>Provide, maintain, and improve our services</li>
+                            <li>Develop new features and content</li>
+                            <li>Personalize your experience</li>
+                            <li>Communicate with you about products, services, and promotions</li>
+                        </ul>
+
+                        <h2>3. Information Sharing</h2>
+                        <p>We do not share personal information with companies, organizations, or individuals outside of MovieFlix except in the following cases:</p>
+                        <ul>
+                            <li>With your consent</li>
+                            <li>For legal reasons</li>
+                            <li>With service providers who process data on our behalf</li>
+                        </ul>
+
+                        <h2>4. Security</h2>
+                        <p>We work hard to protect our users from unauthorized access to or unauthorized alteration, disclosure, or destruction of information we hold. We implement security measures including encryption of data in transit and at rest.</p>
+
+                        <h2>5. Changes to This Policy</h2>
+                        <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new privacy policy on this page and updating the "effective date" at the top.</p>
+
+                        <h2>6. Contact Us</h2>
+                        <p>If you have any questions about this Privacy Policy, please contact us through our <a href="#" onclick="showPage('contact')">Contact Us</a> page.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- About Us Page -->
+        <div id="about-page" class="about-page">
+            <section class="section">
+                <div class="container">
+                    <h2 class="section-title"><i class="fas fa-users"></i> About MovieFlix</h2>
+                    <div class="about-content">
+                        <p>Welcome to MovieFlix, your premier destination for streaming and downloading the latest movies and TV shows. Founded in 2020, we've grown from a small startup to a leading entertainment platform with millions of users worldwide.</p>
+                        
+                        <h2>Our Mission</h2>
+                        <p>To provide high-quality entertainment that's accessible, affordable, and enjoyable for everyone, everywhere. We believe in the power of storytelling to bring people together.</p>
+                        
+                        <h2>What We Offer</h2>
+                        <ul>
+                            <li>Thousands of movies and TV shows</li>
+                            <li>4K Ultra HD streaming</li>
+                            <li>Offline downloads</li>
+                            <li>Personalized recommendations</li>
+                            <li>Multi-device compatibility</li>
+                        </ul>
+                    </div>
+
+                    <h2 class="section-title"><i class="fas fa-user-tie"></i> Meet Our Team</h2>
+                    <div class="team-grid">
+                        <!-- Team Member 1 -->
+                        <div class="team-card">
+                            <div style="background-image: url('./2.webp.jpg');"></div>
+                            <div>
+                                <h3>P J S JASWANTH</h3>
+                                <p>SR Developer</p>
+                                <p>Jaswanth  leads our strategic direction.</p>
+                                <div class="team-social-links">
+                                    <a href="2.webp.jpg"><i class="fab fa-linkedin"></i></a>
+                                    <a href="2.webp.jpg"><i class="fab fa-twitter"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Team Member 2 -->
+                        <div class="team-card">
+                            <div style="background-image: url('./ali.jpg');"></div>
+                            <div>
+                                <h3>Sk Ahmad Ali</h3>
+                                <p>SR Developer</p>
+                                <p>Ali is a passionate about scalable architectures.</p>
+                                <div class="team-social-links">
+                                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                                    <a href="#"><i class="fab fa-github"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Team Member 3 -->
+                        <div class="team-card">
+                            <div style="background-image: url('./rah.jpg');"></div>
+                            <div>
+                                <h3>B Rahul</h3>
+                                <p>Frontend Developer</p>
+                                <p>Rahul has 1 years of experience in Frontend development.</p>
+                                <div class="team-social-links">
+                                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                                    <a href="#"><i class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Team Member 4 -->
+                        <div class="team-card">
+                            <div style="background-image: url('./FIR.jpg');"></div>
+                            <div>
+                                <h3>E Firoz Babu</h3>
+                                <p>Head of Design</p>
+                                <p>Firoz believes good design should be both functional and delightful.</p>
+                                <div class="team-social-links">
+                                    <a href="#"><i class="fab fa-dribbble"></i></a>
+                                    <a href="#"><i class="fab fa-behance"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div style="background-image: url('./MAH.jpg');"></div>
+                            <div>
+                                <h3>N Mahesh </h3>
+                                <p>JR frontend Developer</p>
+                                <p>Mahesh has 1 years of experience in Frontend development.</p>
+                                <div class="team-social-links">
+                                    <a href="#"><i class="fab fa-dribbble"></i></a>
+                                    <a href="#"><i class="fab fa-behance"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer aria-label="Footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <h3>Company</h3>
+                    <a href="#" onclick="showPage('about')">About Us</a>
+                    <a href="#" onclick="showPage('contact')">Contact Us</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Blog</a>
+                </div>
+                <div class="footer-links">
+                    <h3>Legal</h3>
+                    <a href="#" onclick="showPage('privacy')">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+                <div class="footer-links">
+                    <h3>Support</h3>
+                    <a href="#">Help Center</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">System Requirements</a>
+                </div>
+                <div class="footer-links">
+                    <h3>Connect With Us</h3>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 MovieFlix. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // State management
+        const state = {
+            favorites: JSON.parse(localStorage.getItem('favorites')) || [],
+            downloads: JSON.parse(localStorage.getItem('downloads')) || [],
+            recentlyWatched: JSON.parse(localStorage.getItem('recentlyWatched')) || []
+        };
+
+        // DOM Elements
+        const elements = {
+            moviesGrid: document.getElementById('movies-grid'),
+            tvGrid: document.getElementById('tv-grid'),
+            downloadsGrid: document.getElementById('downloads-grid'),
+            favoritesGrid: document.getElementById('favorites-grid'),
+            recentlyWatchedGrid: document.getElementById('recently-watched-grid'),
+            moviesWatched: document.getElementById('movies-watched'),
+            downloadsCount: document.getElementById('downloads-count'),
+            favoritesCount: document.getElementById('favorites-count'),
+            searchInput: document.querySelector('.search-box input'),
+            searchButton: document.querySelector('.search-box button')
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            showPage('home');
+            updateProfileStats();
+            setupEventListeners();
+        });
+
+        // Page navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page, .movies-page, .tv-page, .downloads-page, .profile-page, .contact-page, .privacy-page, .about-page').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Show selected page
+            document.getElementById(`${pageId}-page`).style.display = 'block';
+            
+            // Update active navigation link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active-page');
+            });
+            
+            if (['home', 'movies', 'tv', 'downloads', 'contact', 'privacy', 'about'].includes(pageId)) {
+                const activeLink = Array.from(document.querySelectorAll('.nav-links a')).find(
+                    link => link.textContent.trim().toLowerCase() === pageId || 
+                           (pageId === 'home' && link.textContent.trim().toLowerCase() === 'home')
+                );
+                if (activeLink) activeLink.classList.add('active-page');
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+            
+            // Update dynamic content if needed
+            if (pageId === 'profile') {
+                updateProfileStats();
+            }
+        }
+
+        // Update profile statistics
+        function updateProfileStats() {
+            elements.moviesWatched.textContent = state.recentlyWatched.length;
+            elements.downloadsCount.textContent = state.downloads.length;
+            elements.favoritesCount.textContent = state.favorites.length;
+        }
+
+        // Save state to localStorage
+        function saveState() {
+            localStorage.setItem('favorites', JSON.stringify(state.favorites));
+            localStorage.setItem('downloads', JSON.stringify(state.downloads));
+            localStorage.setItem('recentlyWatched', JSON.stringify(state.recentlyWatched));
+        }
+
+        // Event handlers
+        function handlePlay(title, id) {
+            alert(`Now playing: ${title}`);
+            
+            // Add to recently watched if not already there
+            const existingIndex = state.recentlyWatched.findIndex(item => item.id === id);
+            
+            if (existingIndex >= 0) {
+                state.recentlyWatched[existingIndex].lastWatched = new Date().toLocaleDateString();
+            } else {
+                const item = document.querySelector(`.card[data-id="${id}"]`);
+                if (item) {
+                    const title = item.querySelector('h3').textContent;
+                    const image = item.querySelector('img').src;
+                    
+                    state.recentlyWatched.unshift({
+                        id: id,
+                        title: title,
+                        image: image,
+                        lastWatched: new Date().toLocaleDateString()
+                    });
+                    
+                    // Keep only the last 10 items
+                    if (state.recentlyWatched.length > 10) {
+                        state.recentlyWatched.pop();
+                    }
+                }
+            }
+            
+            saveState();
+            updateProfileStats();
+        }
+
+        function handleDownload(title, id) {
+            const item = document.querySelector(`.card[data-id="${id}"]`);
+            
+            if (item && !state.downloads.some(d => d.id === id)) {
+                const title = item.querySelector('h3').textContent;
+                const image = item.querySelector('img').src;
+                
+                state.downloads.push({
+                    id: id,
+                    title: title,
+                    image: image,
+                    quality: Math.random() > 0.5 ? '1080p' : '4K HDR',
+                    size: Math.random() > 0.5 ? '2.4GB' : '8.7GB'
+                });
+                
+                saveState();
+                updateProfileStats();
+                alert(`Downloading: ${title}`);
+            } else {
+                alert(`${title} is already downloaded`);
+            }
+        }
+
+        function handleFavorite(title, id, isFavorite) {
+            const item = document.querySelector(`.card[data-id="${id}"]`);
+            
+            if (isFavorite) {
+                state.favorites = state.favorites.filter(fav => fav.id !== id);
+                alert(`Removed ${title} from favorites`);
+            } else if (item) {
+                const title = item.querySelector('h3').textContent;
+                const image = item.querySelector('img').src;
+                
+                state.favorites.push({
+                    id: id,
+                    title: title,
+                    image: image
+                });
+                alert(`Added ${title} to favorites`);
+            }
+            
+            saveState();
+            updateProfileStats();
+        }
+
+        function handleDeleteDownload(id) {
+            state.downloads = state.downloads.filter(d => d.id !== id);
+            saveState();
+            updateProfileStats();
+        }
+
+        // Search functionality
+        function handleSearch() {
+            const searchTerm = elements.searchInput.value.trim().toLowerCase();
+            
+            if (searchTerm) {
+                // Show loading state
+                elements.searchButton.innerHTML = '<div class="loading"></div>';
+                
+                // Simulate API call
+                setTimeout(() => {
+                    elements.searchButton.innerHTML = '<i class="fas fa-search"></i>';
+                    
+                    const movieCards = Array.from(document.querySelectorAll('.card'));
+                    const results = movieCards.filter(card => {
+                        const title = card.querySelector('h3').textContent.toLowerCase();
+                        return title.includes(searchTerm);
+                    }).map(card => card.querySelector('h3').textContent);
+                    
+                    if (results.length > 0) {
+                        alert(`Search results for "${searchTerm}":\n\n${results.join('\n')}`);
+                    } else {
+                        alert(`No results found for "${searchTerm}"`);
+                    }
+                }, 1000);
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Initialize - show home page by default
+            showPage('home');
+
+            // Logo click handler
+            document.querySelector('.logo').addEventListener('click', function() {
+                showPage('home');
+                document.querySelector('.nav-links a').classList.add('active-page');
+            });
+
+            // Contact form submission
+            document.getElementById('contactForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Thank you for your message! We will get back to you soon.');
+                this.reset();
+                showPage('home');
+            });
+
+            // Card action buttons functionality
+            document.addEventListener('click', function(e) {
+                // Play button
+                if (e.target.classList.contains('fa-play') || e.target.closest('.fa-play')) {
+                    const card = e.target.closest('.card');
+                    const title = card.querySelector('h3').textContent;
+                    const id = card.getAttribute('data-id');
+                    handlePlay(title, id);
+                }
+                
+                // Download button
+                if (e.target.classList.contains('fa-download') || e.target.closest('.fa-download')) {
+                    const card = e.target.closest('.card');
+                    const title = card.querySelector('h3').textContent;
+                    const id = card.getAttribute('data-id');
+                    handleDownload(title, id);
+                }
+                
+                // Favorite button
+                if (e.target.classList.contains('fa-heart') || e.target.closest('.fa-heart')) {
+                    const card = e.target.closest('.card');
+                    const title = card.querySelector('h3').textContent;
+                    const id = card.getAttribute('data-id');
+                    const isFavorite = e.target.classList.contains('fas');
+                    handleFavorite(title, id, isFavorite);
+                    
+                    // Toggle heart icon
+                    if (isFavorite) {
+                        e.target.classList.remove('fas');
+                        e.target.classList.add('far');
+                    } else {
+                        e.target.classList.remove('far');
+                        e.target.classList.add('fas');
+                    }
+                }
+                
+                // Delete button
+                if (e.target.classList.contains('fa-trash') || e.target.closest('.fa-trash')) {
+                    const card = e.target.closest('.card');
+                    const id = card.getAttribute('data-id');
+                    if (confirm('Are you sure you want to delete this download?')) {
+                        handleDeleteDownload(id);
+                        card.style.transform = 'scale(0)';
+                        setTimeout(() => {
+                            card.remove();
+                        }, 300);
+                    }
+                }
+            });
+
+            // Search functionality
+            document.querySelector('.search-box button').addEventListener('click', handleSearch);
+            document.querySelector('.search-box input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
